@@ -1,0 +1,7 @@
+[spotify]
+
+[shairport]
+
+[nuimo]
+mac=a2:77:de:66:33:cc
+
