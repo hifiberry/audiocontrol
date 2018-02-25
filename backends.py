@@ -34,6 +34,9 @@ class AudioBackend(object):
     def activate(self, active=True):
         self.active = True
 
+    def terminate(self):
+        pass
+
     def __str__(self):
         return self.service
 
@@ -58,6 +61,9 @@ class Spotifyd(AudioBackend):
         else:
             print("Pausing spotify")
             self.spotifyControl.pause()
+
+    def skip(self, direction=1):
+        self.spotifyControl.skip(direction)
 
 
 class Shairport(AudioBackend):
