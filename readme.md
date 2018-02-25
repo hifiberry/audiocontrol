@@ -80,7 +80,7 @@ This can be done simply in a shell script:
 /bin/echo $*  > /tmp/audiostatus &
 sleep 2
 kill $!
-``
+```
 
 ### Shairport
 
@@ -97,7 +97,7 @@ sessioncontrol =
   allow_session_interruption = "yes";
   session_timeout = 20;
 };
-``
+```
 
 ### Spotifyd
 
@@ -109,4 +109,4 @@ Spotify configuration file
 [global]
 onstart = /opt/hifiberry/bin/write-status START SPOTIFY
 onstop = /opt/hifiberry/bin/write-status STOP SPOTIFY
-``
+```
