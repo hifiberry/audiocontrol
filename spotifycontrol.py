@@ -72,7 +72,7 @@ class SpotifyControl():
 
         return access_token
 
-    def pause(self):
+    def command(self, cmd):
         access_token = None
         token_info = self.sp_oauth.get_cached_token()
         if token_info:
@@ -81,7 +81,22 @@ class SpotifyControl():
 
         if access_token:
             sp = spotipy.Spotify(access_token)
-            sp.pause_playback()
+
+            if (cmd == "pause_playback"):
+                sp.pause_playback()
+            elif (cmd == "next_track"):
+                sp.next_track()
+            elif (cmd == "previous_track"):
+                sp.previous_track()
+
+    def pause(self):
+        self.command("pause_playback")
+
+    def skip(self, direction):
+        if (direction > 0):
+            self.command("next_track")
+        elif (direction < 0):
+            self.command("previous_track")
 
     def register_mdns(self):
         print("registering MDNS")
