@@ -2,6 +2,7 @@ import threading
 import logging
 from typing import Dict
 import nuimohelpers
+import time
 
 CONTROL_VOLUME_UP = 1
 CONTROL_VOLUME_DOWN = 2
@@ -57,9 +58,7 @@ class Nuimo(Controller):
             print(event)
             logging.debug("Received gesture event to Nuimo controller")
             if event.gesture == Nuimo.Gesture.ROTATION:
-                value = event.value / 15
-                target_vol = self.manager.volume_percent + value
-                self.manager.set_volume_percent(target_vol)
+                self.manager.change_volume_percent(event.value / 15)
             elif (event.gesture == Nuimo.Gesture.TOUCH_RIGHT) or \
                     (event.gesture == Nuimo.Gesture.SWIPE_RIGHT):
                 self.manager.skip(1)
@@ -101,3 +100,35 @@ class Nuimo(Controller):
     def set_manager(self, manager):
         Controller.set_manager(self, manager)
         self.nuimocontroller.listener.set_manager(manager)
+
+
+class Keyboard(Controller):
+
+    def __init__(self, params: Dict[str, str]):
+        self.codetable = {}
+        print(params)
+        for i in params:
+            self.codetable[params[i]] = i
+
+        import keyboard
+        keyboard.hook(self.keyboard_hook)
+
+        print(self.codetable)
+        print("Keyboard listener started")
+
+    def keyboard_hook(self, e):
+        import keyboard
+        if e.event_type == keyboard.KEY_DOWN:
+            try:
+                command = self.codetable[str(e.scan_code)]
+            except:
+                return
+
+            if command == "volume_up":
+                self.manager.change_volume_percent(5)
+            elif command == "volume_down":
+                self.manager.change_volume_percent(-5)
+
+    def run(self):
+        import keyboard
+        keyboard.wait()

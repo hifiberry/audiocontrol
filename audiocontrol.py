@@ -7,7 +7,7 @@ import sys
 import configparser
 
 from backends import Spotifyd, Shairport
-from controllers import Nuimo
+from controllers import Nuimo, Keyboard
 
 manager = None
 
@@ -109,6 +109,9 @@ class Manager():
         self.volume_percent = volume_percent
         print("Volume: {}%".format(self.volume_percent))
 
+    def change_volume_percent(self, diff):
+        self.set_volume_percent(self.volume_percent + diff)
+
     def skip(self, direction=1):
         print("Skip {}".format(direction))
         if self.active_backend is not None:
@@ -154,6 +157,9 @@ def main():
 
         if section == "nuimo":
             manager.add_controller(Nuimo(config["nuimo"]))
+
+        if section == "keyboard":
+            manager.add_controller(Keyboard(config["keyboard"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
