@@ -110,3 +110,8 @@ Spotify configuration file
 onstart = /opt/hifiberry/bin/write-status START SPOTIFY
 onstop = /opt/hifiberry/bin/write-status STOP SPOTIFY
 ```
+
+## Running Audio control
+
+As AudioControl has to control different processed that might run under 
+their own user id, the easiest way is to run it as root. 
