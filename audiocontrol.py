@@ -4,9 +4,12 @@ import os
 import signal
 import sys
 
-from backends import Spotifyd, Shairport
+import configparser
 
-controller = None
+from backends import Spotifyd, Shairport
+from controllers import Nuimo
+
+manager = None
 
 
 class StatusUpdater(object):
@@ -60,36 +63,69 @@ class status():
         self.controller.service_changed(service)
 
 
-class Controller():
+class Manager():
 
     def __init__(self):
         self.status = status(self)
         self.stop_other_on_service_change = True
         self.backends = []
+        self.controllers = []
+        self.terminate = False
+        self.volume_percent = 50
+        self.active_backend = None
 
     def run(self):
         print("Backends enabled: ")
         for b in self.backends:
             print(b)
-        while True:
-            print("* {} *".format(self.status.service))
-            time.sleep(60)
+        while not(self.terminate):
+            time.sleep(0.1)
 
     def add_backend(self, backend):
         self.backends.append(backend)
+
+    def add_controller(self, controller):
+        self.controllers.append(controller)
+        controller.set_manager(self)
 
     def service_changed(self, service):
         print("service: {}".format(service))
         if self.stop_other_on_service_change and (service != ""):
             for b in self.backends:
-                if b.service != service:
+                if b.service == service:
+                    self.active_backend = b
+                else:
                     b.stop()
+
+    def quit(self):
+        self.terminate = True
+
+    def set_volume_percent(self, volume_percent):
+        if (volume_percent < 0):
+            volume_percent = 0
+        elif (volume_percent > 100):
+            volume_percent = 100
+
+        self.volume_percent = volume_percent
+        print("Volume: {}%".format(self.volume_percent))
+
+    def skip(self, direction=1):
+        print("Skip {}".format(direction))
+        if self.active_backend is not None:
+            self.active_backend.skip(direction)
 
 
 def sigterm_handler(_signal, _frame):
     """
     Shut down gracefully
     """
+    global manager
+    for b in manager.backends:
+        b.terminate()
+
+    for c in manager.backends:
+        c.terminate()
+
     sys.exit(0)
 
 
@@ -97,21 +133,36 @@ def sigusr1_handler(_signal, _frame):
     """
     STOP playback on SIGUSR1
     """
-    for b in controller.backends:
+    for b in manager.backends:
         b.stop()
 
 
 def main():
-    global controller
+    global manager
+
+    manager = Manager()
+
+    config = configparser.ConfigParser()
+    config.read("audiocontrol.conf")
+
+    for section in config.sections():
+        if section == "spotify":
+            manager.add_backend(Spotifyd({}))
+
+        if section == "shairport":
+            manager.add_backend(Shairport({}))
+
+        if section == "nuimo":
+            manager.add_controller(Nuimo(config["nuimo"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGUSR1, sigusr1_handler)
-    controller = Controller()
-    controller.add_backend(Spotifyd({}))
-    controller.add_backend(Shairport({}))
 
-    controller.run()
+    try:
+        manager.run()
+    except KeyboardInterrupt:
+        print("CTRL-C pressed")
 
 
 if __name__ == '__main__':
