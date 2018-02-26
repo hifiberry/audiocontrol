@@ -5,3 +5,13 @@
 [nuimo]
 mac=a2:77:de:66:33:cc
 
+[keyboard]
+# Map commands to specific scancodes
+volume_up=115
+volume_down=114
+next=106
+previous=105
+playpause=28
+
+[alsavolume]
+control=Master
