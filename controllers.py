@@ -128,6 +128,10 @@ class Keyboard(Controller):
                 self.manager.change_volume_percent(5)
             elif command == "volume_down":
                 self.manager.change_volume_percent(-5)
+            elif command == "previous":
+                self.manager.skip(-1)
+            elif command == "next":
+                self.manager.skip(1)
 
     def run(self):
         import keyboard
