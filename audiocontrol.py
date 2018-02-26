@@ -3,11 +3,12 @@ import time
 import os
 import signal
 import sys
+import logging
 
 import configparser
 
 from backends import Spotifyd, Shairport, Mpd
-from controllers import Nuimo, Keyboard
+from controllers import Nuimo, Keyboard, AlsaVolume
 
 manager = None
 
@@ -78,6 +79,10 @@ class Manager():
         print("Backends enabled: ")
         for b in self.backends:
             print(b)
+        print("Controllers enabled: ")
+        for c in self.controllers:
+            print(c)
+
         while not(self.terminate):
             time.sleep(0.1)
 
@@ -101,13 +106,21 @@ class Manager():
         self.terminate = True
 
     def set_volume_percent(self, volume_percent):
+
+        volume_old = self.volume_percent
         if (volume_percent < 0):
             volume_percent = 0
         elif (volume_percent > 100):
             volume_percent = 100
 
         self.volume_percent = volume_percent
-        print("Volume: {}%".format(self.volume_percent))
+        if volume_old != self.volume_percent:
+            for b in self.backends:
+                b.volume_changed()
+            for c in self.controllers:
+                c.volume_changed()
+
+        logging.debug("Volume: {}%".format(self.volume_percent))
 
     def change_volume_percent(self, diff):
         self.set_volume_percent(self.volume_percent + diff)
@@ -163,6 +176,9 @@ def main():
 
         if section == "keyboard":
             manager.add_controller(Keyboard(config["keyboard"]))
+
+        if section == "alsavolume":
+            manager.add_controller(AlsaVolume(config["alsavolume"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)

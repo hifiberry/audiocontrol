@@ -12,9 +12,10 @@ STATE_IDLE = 3
 
 class AudioBackend(object):
 
-    def __init__(self, params: Dict[str, str]):
+    def __init__(self, _params: Dict[str, str]):
         self.service = "GENERIC"
         self.active = False
+        self.term_received = False
 
     def play(self):
         print("{} play - not implemented", self.service)
@@ -25,16 +26,27 @@ class AudioBackend(object):
     def stop(self):
         print("{} stop - not implemented", self.service)
 
-    def skip(self, direction=1):
+    def skip(self, _direction=1):
         print("{} skip - not implemented", self.service)
 
-    def seek(self, seconds=5):
+    def seek(self, _seconds=5):
         print("{} seek - not implemented", self.service)
 
-    def activate(self, active=True):
+    def activate(self, _active=True):
         self.active = True
 
+    def is_active(self):
+        return self.active
+
     def terminate(self):
+        self.term_received = True
+
+    def volume_changed(self):
+        '''
+        Notifies a control that the playback volume has been changed.
+        In most cases, this can be ignored, but it can be useful e.g. 
+        to display the volume.
+        '''
         pass
 
     def __str__(self):
@@ -79,8 +91,8 @@ class Shairport(AudioBackend):
         """
         logging.info("Stopping Airplay by killing shairport-sync")
         os.system("killall shairport-sync")
-        
-        
+
+
 class Mpd(AudioBackend):
     def __init__(self, _params: Dict[str, str]):
         self.service = "MPD"
@@ -91,10 +103,9 @@ class Mpd(AudioBackend):
         """
         logging.info("Stopping MPC playback using mpc pause")
         os.system("mpc pause")
-        
+
     def skip(self, direction=1):
-        if direction>0:
+        if direction > 0:
             os.system("mpc next")
-        if direction<0:
+        if direction < 0:
             os.system("mpc previous")
-        

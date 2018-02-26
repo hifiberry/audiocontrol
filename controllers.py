@@ -1,8 +1,10 @@
 import threading
 import logging
-from typing import Dict
-import nuimohelpers
 import time
+from typing import Dict
+
+
+import nuimohelpers
 
 CONTROL_VOLUME_UP = 1
 CONTROL_VOLUME_DOWN = 2
@@ -14,12 +16,24 @@ class Controller():
 
     def __init__(self, params: Dict[str, str]):
         self.manager = None
+        self.term_received = False
 
     def set_manager(self, manager):
         self.manager = manager
 
-    def terminate(self):
+    def volume_changed(self):
+        '''
+        Notifies a control that the playback volume has been changed.
+        In most cases, this can be ignored, but it can be useful e.g. 
+        to display the volume.
+        '''
         pass
+
+    def terminate(self):
+        self.term_received = True
+
+    def __str__(self):
+        return self.service
 
 
 class Nuimo(Controller):
@@ -72,6 +86,8 @@ class Nuimo(Controller):
     def __init__(self, params: Dict[str, str]):
         import nuimo
 
+        self.service = "NUIMO"
+
         mac = params["mac"]
 
         self.manager = nuimo.ControllerManager(adapter_name='hci0')
@@ -105,16 +121,14 @@ class Nuimo(Controller):
 class Keyboard(Controller):
 
     def __init__(self, params: Dict[str, str]):
+        self.service = "KEYBOARD"
         self.codetable = {}
-        print(params)
         for i in params:
             self.codetable[params[i]] = i
 
         import keyboard
         keyboard.hook(self.keyboard_hook)
-
-        print(self.codetable)
-        print("Keyboard listener started")
+        logging.debug("Keyboard listener started")
 
     def keyboard_hook(self, e):
         import keyboard
@@ -136,3 +150,56 @@ class Keyboard(Controller):
     def run(self):
         import keyboard
         keyboard.wait()
+
+
+class AlsaVolume(Controller):
+
+    def __init__(self, params: Dict[str, str]):
+        import alsaaudio
+
+        self.manager = None
+        self.service = "ALSAVOLUME"
+        self.term_received = False
+        self.volume = 0
+        try:
+            self.mixername = params["control"]
+        except Exception as e:
+            logging.error(e)
+            return
+
+        thread = threading.Thread(target=self.run_listener, args=())
+        thread.daemon = True
+        thread.start()
+
+    def volume_changed(self):
+        import alsaaudio
+
+        vol = self.manager.volume_percent
+        if vol != self.volume:
+            alsaaudio.Mixer(self.mixername).setvolume(vol, MIXER_CHANNEL_ALL)
+
+    def run_listener(self):
+        while (self.manager is None) and not (self.term_received):
+            time.sleep(1)
+
+        while not(self.term_received):
+            self.update_volume()
+            time.sleep(0.3)
+
+    def update_volume(self):
+        import alsaaudio
+
+        volumes = alsaaudio.Mixer(self.mixername).getvolume()
+        channels = 0
+        vol = 0
+        for i in range(len(volumes)):
+            channels += 1
+            vol += volumes[i]
+
+        if channels > 0:
+            vol = vol / channels
+
+        if vol != self.volume:
+            logging.debug("ALSA volume changed to {}".format(vol))
+            self.volume = vol
+            self.manager.set_volume_percent(vol)
