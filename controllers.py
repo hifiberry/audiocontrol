@@ -176,7 +176,8 @@ class AlsaVolume(Controller):
 
         vol = self.manager.volume_percent
         if vol != self.volume:
-            alsaaudio.Mixer(self.mixername).setvolume(vol, MIXER_CHANNEL_ALL)
+            alsaaudio.Mixer(self.mixername).setvolume(int(vol),
+                                                      alsaaudio.MIXER_CHANNEL_ALL)
 
     def run_listener(self):
         while (self.manager is None) and not (self.term_received):
