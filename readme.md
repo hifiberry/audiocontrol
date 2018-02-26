@@ -32,6 +32,7 @@ This means you have to configure systemd to automatically restart
 shairport-sync once it has been killed.
 
 A configuration could look like this:
+
 ```
 [Unit]
 Description=Shairport Sync - AirPlay Audio Receiver
@@ -63,6 +64,13 @@ authorisation code that is used to control Spotify playback. This is
 only stored locally. No Spotify data are send somewhere else.
 
 
+### MPD
+
+MPD - the music player daemon is very popular for users with a collection
+of music files stored locally. mpd comes with the control tool mpc that 
+will be used by audiocontrol. 
+
+
 ## Notification interface
 AudioController creates a named pipe /tmp/audiostatus.
 Services can report their playback status into this pipe
@@ -88,6 +96,7 @@ Shairport can call an external script when playback starts on stops.
 This can be used to post the START/STOP messages to the named pipe. You
 need to add this to the sessioncontrol section of your shairport-sync.conf 
 file:
+
 ```
 sessioncontrol =
 {
@@ -110,6 +119,36 @@ Spotify configuration file
 onstart = /opt/hifiberry/bin/write-status START SPOTIFY
 onstop = /opt/hifiberry/bin/write-status STOP SPOTIFY
 ```
+
+## Controllers
+
+While the main functionality of a backend is the playback of music, a
+controller is used to send and recieve control messages. A controller 
+can actively send command (e.g. based on a keypress, rotary controller,
+infrared remote or many more). A controller can also just listen to 
+events (e.g. meta data of the song currently playing or the volume 
+level). If can also combine both
+
+### Nuimo
+
+The Senic Nuimo is a rotary controller with additional touch 
+functionality that can send command via Bluetooth LE.
+The Nuimo module allows to use the rotary control for volume control
+and the touch panel to seek forward and backward
+
+### Keyboard
+
+The Keyboard can map key pressed to control actions. Ideally you will 
+use multimedia keys or function keys for this. Many RF remote controls 
+that use an USB dongle also act as a keyboard and can be integrated 
+using this controller
+
+### ALSAVolume
+
+ALSAVolume provides a bi-directional control to an ALSA mixer device. 
+It can directly control the volume, but also report changes that were
+made by other programs.
+
 
 ## Running Audio control
 
