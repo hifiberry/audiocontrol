@@ -99,8 +99,10 @@ class Manager():
             for b in self.backends:
                 if b.service == service:
                     self.active_backend = b
+                    b.activate()
                 else:
                     b.stop()
+                    b.activate(False)
 
     def quit(self):
         self.terminate = True
