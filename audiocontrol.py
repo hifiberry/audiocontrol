@@ -6,7 +6,7 @@ import sys
 
 import configparser
 
-from backends import Spotifyd, Shairport
+from backends import Spotifyd, Shairport, Mpd
 from controllers import Nuimo, Keyboard
 
 manager = None
@@ -154,6 +154,9 @@ def main():
 
         if section == "shairport":
             manager.add_backend(Shairport({}))
+
+        if section == "mpd":
+            manager.add_backend(Mpd({}))
 
         if section == "nuimo":
             manager.add_controller(Nuimo(config["nuimo"]))
