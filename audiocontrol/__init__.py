@@ -11,7 +11,6 @@ class Manager():
         self.backends = []
         self.controllers = []
         self.metadata = MetaData()
-        print("*3")
 
     def run(self):
         pass

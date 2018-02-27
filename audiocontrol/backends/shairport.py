@@ -41,6 +41,9 @@ class Shairport(AudioBackend):
         thread.daemon = True
         thread.start()
 
+        self.sequence = False
+        self.sequencedata = {}
+
     def stop(self):
         """
         Shairport does not have an option to tell the client to stop
@@ -86,7 +89,22 @@ class Shairport(AudioBackend):
 
         if subtype == "core" and (data is not None):
             attr = METADATA_MAPPING.get(code)
-            self.manager.update_metadata({attr: data})
+            if self.sequence:
+                # If this is parts of a sequence of metadata, just
+                # collect it
+                self.sequencedata[attr] = data
+            else:
+                self.manager.update_metadata({attr: data})
+        elif subtype == "ssnc":
+            if code == "mdst":
+                # Start of a sequence
+                self.sequence = True
+                self.sequencedata = {}
+            elif code == "mden":
+                # end of a sequence, now send metadata to manager
+                self.sequence = False
+                self.manager.update_metadata(self.sequencedata)
+                self.sequencedata = {}
 
     def parse_numbers(self, string, base=16, digits_per_char=2):
         return "".join([chr(int(string[i:i + digits_per_char], base=base)) for i in range(0, len(string), digits_per_char)])

@@ -25,6 +25,9 @@ class Attributes(Enum):
     DISC_NUMBER = 41
     DISC_GENRE = 42
 
+    PICTURE = 100
+    URL = 101
+
 
 class MetaData(object):
     '''
