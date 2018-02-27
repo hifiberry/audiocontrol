@@ -7,8 +7,13 @@ import logging
 
 import configparser
 
-from backends import Spotifyd, Shairport, Mpd
-from controllers import Nuimo, Keyboard, AlsaVolume
+
+from .backends.spotify import Spotifyd
+from .backends.shairport import Shairport
+from .backends.mpd import Mpd
+from .controllers.nuimo import Nuimo
+from .controllers.keyboard import Keyboard
+from .controllers.alsa import AlsaVolume
 
 manager = None
 
@@ -155,7 +160,7 @@ def sigusr1_handler(_signal, _frame):
         b.stop()
 
 
-def main():
+def run():
     global manager
 
     manager = Manager()
@@ -193,4 +198,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run()

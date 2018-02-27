@@ -1,14 +1,16 @@
-# A simple class that controls Spotify via the Spotify Web API
-# Initially it needs
-
 import logging
 import threading
 import socket
+import os
+from typing import Dict
 
-from bottle import route, run, request
 import spotipy
 from spotipy import oauth2
 from zeroconf import ServiceInfo, Zeroconf
+
+from . import AudioBackend
+
+from bottle import route, run, request
 
 MYSERVER_PORT_NUMBER = 14281
 SPOTIPY_CLIENT_ID = "e51080e24e9c48b98c6fc28fb838552e"
@@ -118,6 +120,31 @@ class SpotifyControl():
         logging.info("Unregistering MDNS")
         self.zeroconf.unregister_service(self.zeroconf_info)
         self.zeroconf.close()
+
+
+class Spotifyd(AudioBackend):
+
+    def __init__(self, params: Dict[str, str]):
+        self.spotifyControl = SpotifyControl()
+        self.service = "SPOTIFY"
+
+    def stop(self):
+        """
+        Stop Spotify player using the WebAPI if the spotify client is 
+        connected using the client_id, client_secret
+        Otherwise kill Spotifyd
+        Killing Spotifyd isn't recommended as the client often needs to
+        be restarted until it can reconnect to Spotify
+        """
+        if (self.spotifyControl == None):
+            logging.info("Stopping Spotify by killing spotifyd")
+            os.system("killall spotifyd")
+        else:
+            print("Pausing spotify")
+            self.spotifyControl.pause()
+
+    def skip(self, direction=1):
+        self.spotifyControl.skip(direction)
 
 
 @route('/')
