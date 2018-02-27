@@ -4,3 +4,4 @@ __pycache__
 .spotipyoauthcache
 audiocontrol.conf
 *.pyc
+temp
