@@ -3,10 +3,11 @@ import time
 import os
 import signal
 import sys
-import logging
-
 import configparser
 
+from typing import Dict
+
+from . import Manager
 
 from .backends.spotify import Spotifyd
 from .backends.shairport import Shairport
@@ -14,6 +15,8 @@ from .backends.mpd import Mpd
 from .controllers.nuimo import Nuimo
 from .controllers.keyboard import Keyboard
 from .controllers.alsa import AlsaVolume
+from .controllers.songlogger import SongLogger
+from .metadata import MetaData
 
 manager = None
 
@@ -68,10 +71,15 @@ class status():
         self.service = service
         self.controller.service_changed(service)
 
+    def received_metadata(self, key, value):
+        print(key, value)
 
-class Manager():
+
+class MyManager(Manager):
 
     def __init__(self):
+        super(MyManager, self).__init__()
+
         self.status = status(self)
         self.stop_other_on_service_change = True
         self.backends = []
@@ -91,13 +99,6 @@ class Manager():
         while not(self.terminate):
             time.sleep(0.1)
 
-    def add_backend(self, backend):
-        self.backends.append(backend)
-
-    def add_controller(self, controller):
-        self.controllers.append(controller)
-        controller.set_manager(self)
-
     def service_changed(self, service):
         print("service: {}".format(service))
         if self.stop_other_on_service_change and (service != ""):
@@ -111,26 +112,6 @@ class Manager():
 
     def quit(self):
         self.terminate = True
-
-    def set_volume_percent(self, volume_percent):
-
-        volume_old = self.volume_percent
-        if (volume_percent < 0):
-            volume_percent = 0
-        elif (volume_percent > 100):
-            volume_percent = 100
-
-        self.volume_percent = volume_percent
-        if volume_old != self.volume_percent:
-            for b in self.backends:
-                b.volume_changed()
-            for c in self.controllers:
-                c.volume_changed()
-
-        logging.debug("Volume: {}%".format(self.volume_percent))
-
-    def change_volume_percent(self, diff):
-        self.set_volume_percent(self.volume_percent + diff)
 
     def skip(self, direction=1):
         print("Skip {}".format(direction))
@@ -163,7 +144,7 @@ def sigusr1_handler(_signal, _frame):
 def run():
     global manager
 
-    manager = Manager()
+    manager = MyManager()
 
     config = configparser.ConfigParser()
     config.read("audiocontrol.conf")
@@ -186,6 +167,9 @@ def run():
 
         if section == "alsavolume":
             manager.add_controller(AlsaVolume(config["alsavolume"]))
+
+        if section == "songlogger":
+            manager.add_controller(SongLogger(config["songlogger"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)

@@ -1,5 +1,7 @@
 from typing import Dict
 
+from audiocontrol import DummyManager
+
 STATE_STOPPED = 0
 STATE_PLAYING = 1
 STATE_PAUSED = 2
@@ -12,6 +14,10 @@ class AudioBackend(object):
         self.service = "GENERIC"
         self.active = False
         self.term_received = False
+        self.manager = DummyManager()
+
+    def set_manager(self, manager):
+        self.manager = manager
 
     def play(self):
         print("{} play - not implemented", self.service)
@@ -42,6 +48,13 @@ class AudioBackend(object):
         Notifies a control that the playback volume has been changed.
         In most cases, this can be ignored, but it can be useful e.g. 
         to display the volume.
+        '''
+        pass
+
+    def metadata_changed(self, metadata):
+        '''
+        Notifies a control that the current music metadata has been 
+        changed. Usually this should be ignored.
         '''
         pass
 

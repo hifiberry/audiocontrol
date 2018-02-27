@@ -5,11 +5,13 @@ CONTROL_VOLUME_DOWN = 2
 CONTROL_NEXT = 4
 CONTROL_PREVIOUS = 8
 
+from audiocontrol import DummyManager
+
 
 class Controller():
 
     def __init__(self, _params: Dict[str, str]):
-        self.manager = None
+        self.manager = DummyManager()
         self.term_received = False
 
     def set_manager(self, manager):
@@ -20,6 +22,13 @@ class Controller():
         Notifies a control that the playback volume has been changed.
         In most cases, this can be ignored, but it can be useful e.g. 
         to display the volume.
+        '''
+        pass
+
+    def metadata_changed(self, metadata):
+        '''
+        Notifies a control that the metadata of the song current playing
+        have changed
         '''
         pass
 
