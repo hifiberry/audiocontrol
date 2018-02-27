@@ -235,7 +235,7 @@ class Nuimo(Controller):
 
         def received_gesture_event(self, event):
             logging.debug("Received gesture event to Nuimo controller %s",
-                          )
+                          event)
             if event.gesture == Nuimo.Gesture.ROTATION:
                 self.manager.change_volume_percent(event.value / 15)
             elif (event.gesture == Nuimo.Gesture.TOUCH_RIGHT) or \
