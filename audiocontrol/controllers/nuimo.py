@@ -214,17 +214,16 @@ class Nuimo(Controller):
         connection_failed = False
 
         def started_connecting(self):
-            logging.info("Connecting to Nuimo controller ...")
+            logging.debug("Connecting to Nuimo controller ...")
 
         def connect_succeeded(self):
             self.connection_failed = False
             logging.info("Connected to Nuimo controller")
-            print("SUCCEED")
             self.controller.display_matrix(MUSIC_NOTE)
 
         def connect_failed(self, error):
             self.connection_failed = True
-            logging.info("Can't reconnect. Restarting nuimo_app")
+            logging.error("Can't connect to Nuimo")
 
         def disconnect_succeeded(self):
             logging.warn("Disconnected, reconnecting...")
@@ -235,8 +234,8 @@ class Nuimo(Controller):
             logging.info("Received services resolved to Nuimo controller")
 
         def received_gesture_event(self, event):
-            print(event)
-            logging.debug("Received gesture event to Nuimo controller")
+            logging.debug("Received gesture event to Nuimo controller %s",
+                          )
             if event.gesture == Nuimo.Gesture.ROTATION:
                 self.manager.change_volume_percent(event.value / 15)
             elif (event.gesture == Nuimo.Gesture.TOUCH_RIGHT) or \
@@ -254,8 +253,12 @@ class Nuimo(Controller):
 
         self.service = "NUIMO"
 
-        mac = params["mac"]
+        mac = params.get("mac")
+        if mac is None:
+            logging.error("mac parameter for Nuimo undefined, aborting")
+            return
 
+        adaptername = params.get("adapter_name", "hci1")
         self.manager = nuimo.ControllerManager(adapter_name='hci0')
         self.nuimocontroller = nuimo.Controller(manager=self.manager,
                                                 mac_address=mac)
