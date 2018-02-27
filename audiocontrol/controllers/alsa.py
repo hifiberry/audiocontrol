@@ -19,11 +19,10 @@ class AlsaVolume(Controller):
         if self.pollinterval < 0.1:
             self.pollinterval = 0.1
 
-        try:
-            self.mixername = params["control"]
-        except Exception as e:
-            logging.error(e)
-            return
+        self.mixername = params.get("control", "Master")
+        if alsaaudio.Mixer(self.mixername) == None:
+            logging.error("ALSA mixer device %s not found, aborting",
+                          self.mixername)
 
         thread = threading.Thread(target=self.run_listener, args=())
         thread.daemon = True
