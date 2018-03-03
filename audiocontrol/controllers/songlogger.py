@@ -19,4 +19,4 @@ class SongLogger(Controller):
         output = str(metadata)
         if output != self.playing:
             self.playing = output
-            logging.info(output)
+            logging.info(output.encode('utf-8'))
