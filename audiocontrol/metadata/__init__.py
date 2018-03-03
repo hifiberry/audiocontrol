@@ -14,7 +14,7 @@ class Attributes(Enum):
     SONG_COMPOSER = 5
     SONG_GENRE = 6
     SONG_DESCRIPTION = 7
-    SONG_TIME = 8
+    SONG_DURATION_MS = 8
     SONG_YEAR = 9
     SONG_BPM = 10
 
@@ -26,7 +26,8 @@ class Attributes(Enum):
     DISC_GENRE = 42
 
     PICTURE = 100
-    URL = 101
+    PICTURE_URL = 101
+    URL = 102
 
 
 class MetaData(object):
