@@ -219,7 +219,7 @@ class Nuimo(Controller):
         def connect_succeeded(self):
             self.connection_failed = False
             logging.info("Connected to Nuimo controller")
-            self.controller.display_matrix(MUSIC_NOTE)
+#            self.controller.display_matrix(MUSIC_NOTE)
 
         def connect_failed(self, error):
             self.connection_failed = True
