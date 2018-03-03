@@ -1,0 +1,19 @@
+[Unit]
+Description=Audiocontrol
+After=network-online.target
+After=sound.target
+After=spotify.service
+After=shairport-sync.service
+After=bluetooth.service
+
+[Service]
+Type=idle
+User=root
+ExecStart=/usr/bin/python3 -m audiocontrol -v
+Restart=always
+RestartSec=10
+StartLimitInterval=30
+StartLimitBurst=20
+
+[Install]
+WantedBy=multi-user.target
