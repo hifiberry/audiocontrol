@@ -8,8 +8,7 @@ import base64
 from typing import Dict
 
 from audiocontrol.metadata import Attributes
-
-from . import AudioBackend
+from audiocontrol.backends import AudioBackend
 
 METADATA_MAPPING = {
     "asal": Attributes.SONG_ALBUM,

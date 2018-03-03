@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict
 
-from . import AudioBackend
+from audiocontrol.backends import AudioBackend
 
 
 class Mpd(AudioBackend):

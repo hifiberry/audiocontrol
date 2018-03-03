@@ -8,7 +8,7 @@ import spotipy
 from spotipy import oauth2
 from zeroconf import ServiceInfo, Zeroconf
 
-from . import AudioBackend
+from audiocontrol.backends import AudioBackend
 
 from bottle import route, run, request
 
