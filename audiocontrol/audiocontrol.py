@@ -7,16 +7,16 @@ import configparser
 
 from typing import Dict
 
-from . import Manager
+from audiocontrol import Manager
 
-from .backends.spotify import Spotifyd
-from .backends.shairport import Shairport
-from .backends.mpd import Mpd
-from .controllers.nuimo import Nuimo
-from .controllers.keyboard import Keyboard
-from .controllers.alsa import AlsaVolume
-from .controllers.songlogger import SongLogger
-from .metadata import MetaData
+from audiocontrol.backends.spotify import Spotifyd
+from audiocontrol.backends.shairport import Shairport
+from audiocontrol.backends.mpd import Mpd
+from audiocontrol.backends.btspeaker import BTSpeaker
+from audiocontrol.controllers.nuimo import Nuimo
+from audiocontrol.controllers.keyboard import Keyboard
+from audiocontrol.controllers.alsa import AlsaVolume
+from audiocontrol.controllers.songlogger import SongLogger
 
 manager = None
 
@@ -161,6 +161,9 @@ def run():
 
         if section == "nuimo":
             manager.add_controller(Nuimo(config["nuimo"]))
+
+        if section == "btspaker":
+            manager.add_controller(BTSpeaker(config["btspeaker"]))
 
         if section == "keyboard":
             manager.add_controller(Keyboard(config["keyboard"]))
