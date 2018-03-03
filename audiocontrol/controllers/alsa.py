@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Dict
 
-from . import Controller
+from audiocontrol.controllers import Controller
 
 
 class AlsaVolume(Controller):

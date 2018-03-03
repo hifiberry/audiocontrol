@@ -3,7 +3,7 @@ from math import ceil
 import logging
 import threading
 
-from . import Controller
+from audiocontrol.controllers import Controller
 
 # Nuimo matrices from
 # https://github.com/getsenic/senic-hub/blob/master/senic_hub/nuimo_app/matrices.py

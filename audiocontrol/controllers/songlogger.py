@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-from . import Controller
+from audiocontrol.controllers import Controller
 
 
 class SongLogger(Controller):
