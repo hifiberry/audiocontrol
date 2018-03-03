@@ -48,7 +48,6 @@ class Manager():
         self.set_volume_percent(self.volume_percent + diff)
 
     def skip(self, direction=1):
-        print("Skip {}".format(direction))
         if self.active_backend is not None:
             self.active_backend.skip(direction)
 
