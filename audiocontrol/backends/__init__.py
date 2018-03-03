@@ -45,7 +45,7 @@ class AudioBackend(object):
 
     def volume_changed(self):
         '''
-        Notifies a control that the playback volume has been changed.
+        Notifies a backend that the playback volume has been changed.
         In most cases, this can be ignored, but it can be useful e.g. 
         to display the volume.
         '''
@@ -53,8 +53,16 @@ class AudioBackend(object):
 
     def metadata_changed(self, metadata):
         '''
-        Notifies a control that the current music metadata has been 
+        Notifies a backend that the current music metadata has been 
         changed. Usually this should be ignored.
+        '''
+        pass
+
+    def track_changed(self, trackdata):
+        '''
+        Notifies a backend that the current track has been 
+        changed. Usually this is a good time to refresh the metadata for
+        the song currently playing.
         '''
         pass
 
