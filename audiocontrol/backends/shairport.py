@@ -19,7 +19,7 @@ METADATA_MAPPING = {
     "asdn": Attributes.DISC_NUMBER,
     "asgn": Attributes.SONG_GENRE,
     "asdt": Attributes.SONG_DESCRIPTION,
-    "astm": Attributes.SONG_TIME,
+    "astm": Attributes.SONG_DURATION_MS,
     "astc": Attributes.TRACK_COUNT,
     "astn": Attributes.TRACK_NUMBER,
     "asyr": Attributes.SONG_YEAR,
