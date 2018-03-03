@@ -1,8 +1,7 @@
 import logging
-
 from typing import Dict
 
-from .metadata import MetaData
+from audiocontrol.metadata import MetaData
 
 
 class Manager():
