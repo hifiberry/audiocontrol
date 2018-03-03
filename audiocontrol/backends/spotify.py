@@ -6,9 +6,11 @@ from typing import Dict
 
 import spotipy
 from spotipy import oauth2
+from spotipy.client import SpotifyException
 from zeroconf import ServiceInfo, Zeroconf
 
 from audiocontrol.backends import AudioBackend
+from audiocontrol.metadata import Attributes
 
 from bottle import route, run, request
 
@@ -25,8 +27,11 @@ spotify_control = None
 
 class SpotifyControl():
 
-    def __init__(self):
+    def __init__(self, devicename):
         global spotify_control
+
+        self.devicename = devicename
+        self.pid = None
 
         self.sp_oauth = oauth2.SpotifyOAuth(
             SPOTIPY_CLIENT_ID,
@@ -40,12 +45,15 @@ class SpotifyControl():
             # Register a temporary name in mDNS, start a web server to
             # provide a web site that registers the access code from
             # Spotify
-            print("Spotify access code missing, starting up web server \
-            to connect Spotify account")
+            logging.info("Spotify access code missing, starting up "
+                         "web server to connect Spotify account")
             self.register_mdns()
             thread = threading.Thread(target=self.run_webserver, args=())
             thread.daemon = True
             thread.start()
+
+        logging.debug("Initialized Spotify control for %s",
+                      self.devicename)
 
     def run_webserver(self):
         run(host='', port=MYSERVER_PORT_NUMBER)
@@ -84,12 +92,49 @@ class SpotifyControl():
         if access_token:
             sp = spotipy.Spotify(access_token)
 
-            if (cmd == "pause_playback"):
-                sp.pause_playback()
-            elif (cmd == "next_track"):
-                sp.next_track()
-            elif (cmd == "previous_track"):
-                sp.previous_track()
+            try:
+                pid = self.playerid()
+                if pid:
+                    if (cmd == "pause_playback"):
+                        sp.pause_playback(pid)
+                    elif (cmd == "next_track"):
+                        sp.next_track(pid)
+                    elif (cmd == "previous_track"):
+                        sp.previous_track(pid)
+                else:
+                    if (cmd == "pause_playback"):
+                        sp.pause_playback()
+                    elif (cmd == "next_track"):
+                        sp.next_track()
+                    elif (cmd == "previous_track"):
+                        sp.previous_track()
+            except SpotifyException as e:
+                logging.info("SpotifyException: %s", e)
+
+    def playerid(self):
+        if self.pid is not None:
+            return self.playerid()
+
+        if self.devicename is None:
+            return None
+
+        access_token = None
+        token_info = self.sp_oauth.get_cached_token()
+        if token_info:
+            logging.debug("Found cached token!")
+            access_token = token_info['access_token']
+
+        if access_token:
+            sp = spotipy.Spotify(access_token)
+            for dev in sp.devices()["devices"]:
+                if dev["name"] == self.devicename:
+                    self.pid = dev["id"]
+                    logging.debug("my spotify player id is %s",
+                                  self.pid)
+                    return self.pid
+
+            logging.info("Can't find spotify devices named %s",
+                         self.devicename)
 
     def pause(self):
         self.command("pause_playback")
@@ -121,11 +166,24 @@ class SpotifyControl():
         self.zeroconf.unregister_service(self.zeroconf_info)
         self.zeroconf.close()
 
+    def get_trackdata(self, trackid):
+        access_token = None
+        token_info = self.sp_oauth.get_cached_token()
+        if token_info:
+            logging.debug("Found cached token!")
+            access_token = token_info['access_token']
+
+        if access_token:
+            sp = spotipy.Spotify(access_token)
+            return sp.track(trackid)
+
 
 class Spotifyd(AudioBackend):
 
     def __init__(self, params: Dict[str, str]):
-        self.spotifyControl = SpotifyControl()
+        print(params)
+        devicename = params.get("name", None)
+        self.spotifyControl = SpotifyControl(devicename)
         self.service = "SPOTIFY"
 
     def stop(self):
@@ -140,11 +198,65 @@ class Spotifyd(AudioBackend):
             logging.info("Stopping Spotify by killing spotifyd")
             os.system("killall spotifyd")
         else:
-            print("Pausing spotify")
+            logging.info("Pausing spotify via the API")
             self.spotifyControl.pause()
 
     def skip(self, direction=1):
         self.spotifyControl.skip(direction)
+
+    def track_changed(self, trackid):
+        """
+        Track has changed. Let's update metadata
+        """
+        logging.debug("Spotify: trackid %s", trackid)
+        trackdata = self.spotifyControl.get_trackdata(trackid)
+
+        metadata = {}
+        try:
+            metadata[Attributes.SONG_ARTIST] = ", ".join(
+                a["name"] for a in trackdata["artists"])
+        except KeyError:
+            pass
+
+        try:
+            metadata[Attributes.SONG_TITLE] = trackdata["name"]
+        except KeyError:
+            pass
+
+        try:
+            metadata[Attributes.SONG_ALBUM] = trackdata["album"]["name"]
+        except KeyError:
+            pass
+
+        try:
+            metadata[Attributes.SONG_DURATION_MS] = trackdata["duration_ms"]
+        except KeyError:
+            pass
+
+        try:
+            metadata[Attributes.TRACK_NUMBER] = trackdata["track_number"]
+        except KeyError:
+            pass
+
+        try:
+            metadata[Attributes.DISC_NUMBER] = trackdata["disc_number"]
+        except KeyError:
+            pass
+        try:
+            metadata[Attributes.URL] = trackdata["external_urls"]["spotify"]
+        except KeyError:
+            pass
+
+        try:
+            height = 0
+            for p in trackdata["album"]["images"]:
+                if p["height"] > height:
+                    height = p["height"]
+                    metadata[Attributes.PICTURE_URL] = p["url"]
+        except KeyError:
+            pass
+
+        self.manager.update_metadata(metadata)
 
 
 @route('/')
