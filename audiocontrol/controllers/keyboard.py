@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-from . import Controller
+from audiocontrol.controllers import Controller
 
 
 class Keyboard(Controller):
@@ -13,8 +13,12 @@ class Keyboard(Controller):
             self.codetable[params[i]] = i
 
         import keyboard
-        keyboard.hook(self.keyboard_hook)
-        logging.debug("Keyboard listener started")
+        try:
+            keyboard.hook(self.keyboard_hook)
+            logging.debug("Keyboard listener started")
+        except:
+            logging.error("Could not start Keyboard listener, "
+                          "no keyboard detected or no permissions")
 
     def keyboard_hook(self, e):
         import keyboard
