@@ -4,6 +4,7 @@ import os
 import signal
 import sys
 import configparser
+import logging
 
 from typing import Dict
 
@@ -27,16 +28,21 @@ class StatusUpdater(object):
         self.statuspipe = statuspipe
         self.status = status
         thread = threading.Thread(target=self.run, args=())
-        if (not(os.path.exists(statuspipe))):
-            os.mkfifo(statuspipe)
-
-        os.chmod(statuspipe, 0o666)
+        try:
+            if (not(os.path.exists(statuspipe))):
+                os.mkfifo(statuspipe)
+            os.chmod(statuspipe, 0o666)
+        except PermissionError:
+            logging.error("Can't create named pipe %s", statuspipe)
 
         thread.daemon = True
         thread.start()
 
     def __del__(self):
-        os.remove(self.statuspipe)
+        try:
+            os.remove(self.statuspipe)
+        except PermissionError:
+            logging.error("Can't remove named pipe %s", self.statuspipe)
 
     def run(self):
         pipe = open(self.statuspipe)
