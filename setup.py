@@ -43,6 +43,7 @@ setup(
         'zeroconf',
         'bottle',
         'xmltodict',
+        'lmnotify'
     ],
 
     keywords='audio control shairport spotifyd metadata',

@@ -16,7 +16,7 @@ from audiocontrol.controllers.nuimo import Nuimo
 from audiocontrol.controllers.keyboard import Keyboard
 from audiocontrol.controllers.alsa import AlsaVolume
 from audiocontrol.controllers.songlogger import SongLogger
-
+from audiocontrol.controllers.lametric import LaMetric
 manager = None
 
 
@@ -197,6 +197,9 @@ def run():
 
         if section == "songlogger":
             manager.add_controller(SongLogger(config["songlogger"]))
+
+        if section == "lametric":
+            manager.add_controller(LaMetric(config["lametric"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)
