@@ -2,6 +2,7 @@ import logging
 import threading
 import socket
 import os
+import configparser
 from typing import Dict
 
 import spotipy
@@ -27,11 +28,25 @@ spotify_control = None
 
 class SpotifyControl():
 
-    def __init__(self, devicename):
+    def __init__(self, devicename, configfile):
         global spotify_control
 
         self.devicename = devicename
         self.pid = None
+
+        if (self.devicename is None) and (os.path.isfile(configfile)):
+            config = configparser.ConfigParser()
+            config.read(configfile)
+        else:
+            config = {}
+
+        if "global" in config.sections():
+            try:
+                name = config["global"]["device_name"]
+                if (name is not None) and (name != ""):
+                    self.devicename = name
+            except KeyError:
+                pass
 
         self.sp_oauth = oauth2.SpotifyOAuth(
             SPOTIPY_CLIENT_ID,
@@ -113,7 +128,7 @@ class SpotifyControl():
 
     def playerid(self):
         if self.pid is not None:
-            return self.playerid()
+            return self.pid
 
         if self.devicename is None:
             return None
@@ -146,7 +161,7 @@ class SpotifyControl():
             self.command("previous_track")
 
     def register_mdns(self):
-        print("registering MDNS")
+        logging.info("registering MDNS")
         desc = {'path': '/'}
         self.zeroconf_info = \
             ServiceInfo("_http._tcp.local.",
@@ -181,9 +196,9 @@ class SpotifyControl():
 class Spotifyd(AudioBackend):
 
     def __init__(self, params: Dict[str, str]):
-        print(params)
         devicename = params.get("name", None)
-        self.spotifyControl = SpotifyControl(devicename)
+        configfile = params.get("spotify-config", "/etc/spotifyd.conf")
+        self.spotifyControl = SpotifyControl(devicename, configfile)
         self.service = "SPOTIFY"
 
     def stop(self):
