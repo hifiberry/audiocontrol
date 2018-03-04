@@ -28,10 +28,15 @@ class StatusUpdater(object):
         thread = threading.Thread(target=self.run, args=())
         try:
             os.remove(self.statuspipe)
+        except:
+            pass
+
+        try:
             os.mkfifo(statuspipe)
             os.chmod(statuspipe, 0o666)
         except PermissionError:
             logging.error("Can't create named pipe %s", statuspipe)
+            sys.exit(1)
 
         thread.daemon = True
         thread.start()
