@@ -17,6 +17,7 @@ from audiocontrol.controllers.keyboard import Keyboard
 from audiocontrol.controllers.alsa import AlsaVolume
 from audiocontrol.controllers.songlogger import SongLogger
 from audiocontrol.controllers.lametric import LaMetric
+from audiocontrol.controllers.rotary import Rotary
 manager = None
 
 
@@ -205,6 +206,9 @@ def run():
 
         if section == "lametric":
             manager.add_controller(LaMetric(config["lametric"]))
+
+        if section == "rotary":
+            manager.add_controller(Rotary(config["rotary"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
     signal.signal(signal.SIGTERM, sigterm_handler)

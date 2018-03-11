@@ -15,3 +15,8 @@ playpause=28
 
 [alsavolume]
 control=Master
+
+[rotary]
+clockpin=14
+datapin=15
+swtichpin=4
