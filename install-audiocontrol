@@ -1,0 +1,38 @@
+#!/bin/sh
+sudo apt-get install -y python3-pip
+sudo pip3 install --upgrade audiocontrol
+
+for i in audiocontrol; do
+ sudo systemctl stop $i
+ sudo systemctl disable $i
+done
+
+mkdir -p /var/lib/hifiberry
+
+LOC=`which audiocontrol`
+
+# Create systemd config for the the audiocontrol server
+LOC=`which audiocontrol`
+
+cat <<EOT >/tmp/audiocontrol.service
+[Unit]
+Description=HiFiBerry audiocontrol server
+Wants=network-online.target
+After=network.target network-online.target
+[Service]
+Type=simple
+ExecStart=$LOC
+StandardOutput=journal
+[Install]
+WantedBy=multi-user.target
+EOT
+
+sudo mv /tmp/audiocontrol.service /lib/systemd/system/audiocontrol.service
+
+sudo systemctl daemon-reload
+
+for i in audiocontrol; do
+ sudo systemctl start $i
+ sudo systemctl enable $i
+done
+
