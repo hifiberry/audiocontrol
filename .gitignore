@@ -5,3 +5,4 @@ __pycache__
 audiocontrol.conf
 *.pyc
 temp
+audiocontrol.egg-info
