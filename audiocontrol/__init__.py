@@ -25,7 +25,7 @@ from typing import Dict
 
 from audiocontrol.metadata import MetaData
 
-__version__ = "0.14"
+__version__ = "0.1"
 
 
 class Manager():
