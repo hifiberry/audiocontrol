@@ -1,5 +1,7 @@
 """ Setup module for AudioController """
 
+import audiocontrol
+
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -17,7 +19,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='audiocontrol',
-    version='0.0.1',
+    version=audiocontrol.__version__,
     description='A program that manages different audio players',
     #   long_description=long_description,
     url='https://github.com/hifiberry/audiocontrol',
@@ -57,5 +59,5 @@ setup(
     project_urls={
         'Bug Reports': 'https://github.com/hifiberry/audiocontrol/issues',
     },
-    scripts=['bin/audiocontrold'],
+    scripts=['bin/audiocontrol'],
 )
