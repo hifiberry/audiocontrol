@@ -30,17 +30,6 @@ import logging
 
 from audiocontrol import Manager
 
-from audiocontrol.backends.spotify import Spotifyd
-from audiocontrol.backends.shairport import Shairport
-from audiocontrol.backends.mpd import Mpd
-from audiocontrol.backends.btspeaker import BTSpeaker
-from audiocontrol.controllers.nuimo import Nuimo
-from audiocontrol.controllers.keyboard import Keyboard
-from audiocontrol.controllers.alsa import AlsaVolume
-from audiocontrol.controllers.songlogger import SongLogger
-from audiocontrol.controllers.lametric import LaMetric
-from audiocontrol.controllers.rotary import Rotary
-from audiocontrol.controllers.cec import Cec
 manager = None
 
 
@@ -202,38 +191,49 @@ def run():
 
     for section in config.sections():
         if section == "spotify":
+            from audiocontrol.backends.spotify import Spotifyd
             manager.add_backend(Spotifyd(config["spotify"]))
 
         if section == "shairport":
+            from audiocontrol.backends.shairport import Shairport
             manager.add_backend(Shairport(config["shairport"]))
 
         if section == "mpd":
+            from audiocontrol.backends.mpd import Mpd
             manager.add_backend(Mpd({}))
 
         if section == "btspaker":
+            from audiocontrol.backends.btspeaker import BTSpeaker
             manager.add_backend(BTSpeaker(config["btspeaker"]))
 
         # ----
 
         if section == "nuimo":
+            from audiocontrol.controllers.nuimo import Nuimo
             manager.add_controller(Nuimo(config["nuimo"]))
 
         if section == "keyboard":
+            from audiocontrol.controllers.keyboard import Keyboard
             manager.add_controller(Keyboard(config["keyboard"]))
 
         if section == "alsavolume":
+            from audiocontrol.controllers.alsa import AlsaVolume
             manager.add_controller(AlsaVolume(config["alsavolume"]))
 
         if section == "songlogger":
+            from audiocontrol.controllers.songlogger import SongLogger
             manager.add_controller(SongLogger(config["songlogger"]))
 
         if section == "lametric":
+            from audiocontrol.controllers.lametric import LaMetric
             manager.add_controller(LaMetric(config["lametric"]))
 
         if section == "rotary":
+            from audiocontrol.controllers.rotary import Rotary
             manager.add_controller(Rotary(config["rotary"]))
 
         if section == "cec":
+            from audiocontrol.controllers.cec import Cec
             manager.add_controller(Rotary(config["cec"]))
 
     signal.signal(signal.SIGINT, sigterm_handler)
