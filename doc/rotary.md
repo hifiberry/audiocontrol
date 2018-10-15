@@ -19,3 +19,11 @@ need to be connected to an unused GPIO of te Raspberry Pi. You can configure the
 Let's assume a connection to the Beocreate 4 channel amplifier's GPIO as follows:
 
 ![beocreate](img/beocreate-gpio-rotary.png)
+
+The configuration for this would look like this:
+
+```[rotary]
+clockpin=24
+datapin=5
+switchpin=6
+```
