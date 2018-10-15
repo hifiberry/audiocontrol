@@ -59,5 +59,6 @@ setup(
     project_urls={
         'Bug Reports': 'https://github.com/hifiberry/audiocontrol/issues',
     },
-    scripts=['bin/audiocontrol'],
+    scripts=['bin/audiocontrol', 
+             'bin/print-keycodes'],
 )
