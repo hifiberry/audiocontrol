@@ -22,7 +22,8 @@ Let's assume a connection to the Beocreate 4 channel amplifier's GPIO as follows
 
 The configuration for this would look like this:
 
-```[rotary]
+```
+[rotary]
 clockpin=24
 datapin=5
 switchpin=6
