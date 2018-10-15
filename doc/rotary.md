@@ -27,6 +27,9 @@ The configuration for this would look like this:
 clockpin=24
 datapin=5
 switchpin=6
+steps=20
 ```
 If the control works in the wrong direction, just exchange the clock and data pins either on the Raspberry Pi itself or 
 in the configuration.
+
+With the steps parameter you can configure how many steps you want to have from 0 to 100% volume.
