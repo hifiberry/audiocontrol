@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+import keyboard
+import time
+import sys
+
+
+def print_key(key):
+    print("{}: {}".format(key.name, key.scan_code))
+    if key.name == 'q':
+        sys.exit(0)
+
+
+if __name__ == '__main__':
+    print("Quit with key Q")
+    keyboard.hook(print_key)
+    while (True):
+        time.sleep(100)

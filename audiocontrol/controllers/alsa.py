@@ -41,7 +41,7 @@ class AlsaVolume(Controller):
         if self.pollinterval < 0.1:
             self.pollinterval = 0.1
 
-        self.mixername = params.get("control", "Master")
+        self.mixername = params.get("alsacontrol", "Master")
         if alsaaudio.Mixer(self.mixername) == None:
             logging.error("ALSA mixer device %s not found, aborting",
                           self.mixername)
