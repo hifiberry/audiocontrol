@@ -28,3 +28,5 @@ clockpin=24
 datapin=5
 switchpin=6
 ```
+If the control works in the wrong direction, just exchange the clock and data pins either on the Raspberry Pi itself or 
+in the configuration.
