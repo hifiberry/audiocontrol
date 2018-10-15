@@ -1,0 +1,8 @@
+0.3:
+ renames alsa control name from "control" to "alsacontrol"
+0.2:
+ temporary version, not productive
+
+0.1: 
+ first version
+
